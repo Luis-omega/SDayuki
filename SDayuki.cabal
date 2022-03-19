@@ -31,7 +31,7 @@ common common-options
 library
   import:          common-options
   hs-source-dirs:  src
-  exposed-modules:  FileModel
+  exposed-modules: Tokens, FileModel
   build-depends:
     , containers
     , mtl

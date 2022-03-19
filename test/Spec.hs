@@ -1,8 +1,10 @@
 import Test.Hspec
 
+import qualified FileModelSpec
+
 main :: IO ()
-main =
-  hspec $
-    describe "SDayuki-test" $
-      it "works" $
-        2 + 2 `shouldBe` (4 :: Int)
+main = hspec spec
+
+spec :: Spec
+spec = do
+  describe "Foo" FileModelSpec.spec

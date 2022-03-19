@@ -31,10 +31,14 @@ common common-options
 library
   import:          common-options
   hs-source-dirs:  src
-  exposed-modules: Lib
+  exposed-modules:  FileModel
   build-depends:
     , containers
     , mtl
+    , text
+    , natural-numbers
+    , validation-selective
+    , QuickCheck
 
 executable SDayuki-exe
   import:         common-options
@@ -53,6 +57,11 @@ test-suite SDayuki-test
     , HUnit
     , SDayuki
     , QuickCheck
+    ,hspec-discover
+    , validation-selective
+
+  other-modules:
+    FileModelSpec
 
   ghc-options:    -threaded -rtsopts -with-rtsopts=-N
 

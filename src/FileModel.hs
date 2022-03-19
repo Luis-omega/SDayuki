@@ -12,7 +12,6 @@ module FileModel (
   rangeStart,
   rangeEnd,
   Position (),
-  absolutePosition,
   lineNumber,
   columnNumber,
   getLineStart,
@@ -31,17 +30,16 @@ import qualified Data.Text as Text
 import qualified Validation
 
 data Position = Position
-  { absolutePosition :: Natural
-  , lineNumber :: Natural
+  { lineNumber :: Natural
   , columnNumber :: Natural
   }
   deriving (Eq, Show)
 
 instance Ord Position where
-  p1 <= p2 = absolutePosition p1 <= absolutePosition p2
+  p1 <= p2 = (lineNumber p1, columnNumber p1) <= (lineNumber p2, columnNumber p2)
 
 {- | The inequality
- >> absolutePosition rangeStart  <= absolutePosition rangeEnd
+ >> rangeStart <= rangeEnd
  must hold.
 -}
 data Range = Range
@@ -69,26 +67,21 @@ getColumnEnd Range{rangeEnd = end} = columnNumber end
 
 -- | All parameters must be non negative integers.
 buildPosition ::
-  -- | absolutePosition
-  Int ->
   -- | lineNumber
   Int ->
   -- | columnNumber
   Int ->
   Validation.Validation (NonEmpty Error) Position
 buildPosition
-  absolute
   line
   column =
-    case test absolute "absolute"
-      <> test line "line"
+    case test line "line"
       <> test column "column" of
       Validation.Failure e -> Validation.Failure e
       Validation.Success _ ->
         Validation.Success
           Position
-            { absolutePosition = makeNatural absolute
-            , lineNumber = makeNatural line
+            { lineNumber = makeNatural line
             , columnNumber = makeNatural column
             }
    where
@@ -101,9 +94,7 @@ buildPosition
     makeNatural :: Int -> Natural
     makeNatural = fromInteger . toInteger
 
-{- | First position must have greater absolutePosition than second
- or equal to success.
--}
+-- | First position must be lower or equal than second position
 buildRange ::
   Position ->
   Position ->
@@ -113,6 +104,6 @@ buildRange p1 p2 =
  where
   test :: Validation.Validation (NonEmpty Error) ()
   test =
-    Validation.failureIf
-      (absolutePosition p1 > absolutePosition p2)
+    Validation.failureUnless
+      (p1 <= p2)
       $ BadPositions p1 p2

@@ -1,0 +1,16 @@
+cradle:
+  multi:
+    # - path: "ignore/"
+    #   config: {cradle: {none: }}
+
+    - path: "src"
+      config: {cradle: {cabal: {component: "lib:SDayuki"}}}
+
+    - path: "app"
+      config: {cradle: {cabal: {component: "SDayuki:SDayuki-exe"}}}
+
+    - path: "test"
+      config: {cradle: {cabal: {component: "SDayuki:SDayuki-test"}}}
+
+    - path: "bench"
+      config: {cradle: {cabal: {component: "SDayuki:SDayuki-bench"}}}

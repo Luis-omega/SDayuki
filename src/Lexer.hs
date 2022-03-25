@@ -3,43 +3,27 @@
 module Lexer where
 
 import qualified Data.Text as Text
+import qualified Text.Megaparsec as Megaparsec
+import qualified Text.Megaparsec.Char as Megaparsec.Char
+
 import qualified FileModel
-import qualified Text.Megaparsec.Char.Lexer as L
 import qualified Tokens
 
+import Control.Monad (liftM2)
 import Data.Char (isDigit, isLetter)
+import Data.Functor (($>))
 import Data.Text (Text)
+import Data.Void (Void)
+import Text.Megaparsec (many, (<?>), (<|>))
 
-import Control.Applicative
-import Control.Monad.State.Strict
-import Data.Functor
-import Data.Void
-import Text.Megaparsec hiding (State, many, some)
-import Text.Megaparsec.Char hiding (space)
+type Lexer = Megaparsec.Parsec Void Text
 
-type Lexer = Parsec Void Text
-
-sc :: Lexer ()
-sc =
-  L.space
-    space1
-    empty
-    empty
-
-spaces = takeWhileP (Just "space") (== ' ') $> ()
-
-testChar :: Lexer Char
-testChar =
-  do
-    init <- getPosition
-    out <- char '_'
-    end <- getPosition
-    _ <- spaces
-    return out
+spaces :: Lexer ()
+spaces = Megaparsec.takeWhileP (Just "space") (== ' ') $> ()
 
 getPosition :: Lexer FileModel.Position
 getPosition =
-  FileModel.positionFromMegaparsec <$> getSourcePos
+  FileModel.positionFromMegaparsec <$> Megaparsec.getSourcePos
 
 mkToken :: (a -> Tokens.RealTokenKind) -> Lexer a -> Lexer Tokens.RealToken
 mkToken constructor lexer =
@@ -56,11 +40,11 @@ mkToken constructor lexer =
 -- Let
 keywordLet :: Lexer Tokens.RealToken
 keywordLet =
-  mkToken (const Tokens.Let) (string "let") <?> "Keyword(let)"
+  mkToken (const Tokens.Let) (Megaparsec.Char.string "let") <?> "Keyword(let)"
 
 -- Identifier
 identifierStart :: Lexer Text
-identifierStart = Text.singleton <$> letterChar
+identifierStart = Text.singleton <$> Megaparsec.Char.letterChar
 
 identifierInnerCharPredicate :: Char -> Bool
 identifierInnerCharPredicate c =
@@ -69,7 +53,7 @@ identifierInnerCharPredicate c =
 identifier :: Lexer Text
 identifier =
   let innerParser =
-        takeWhileP
+        Megaparsec.takeWhileP
           (Just "Identifier inner character")
           identifierInnerCharPredicate
    in liftM2 (<>) identifierStart innerParser <?> "identifier"
@@ -81,7 +65,7 @@ keywordIdentifier =
 -- Natural
 asciiDigits :: Lexer Text.Text
 asciiDigits =
-  takeWhile1P
+  Megaparsec.takeWhile1P
     (Just "ASCII digit")
     isDigit
 
@@ -95,45 +79,45 @@ keywordNatural =
 -- NewLine
 keywordNewLine :: Lexer Tokens.RealToken
 keywordNewLine =
-  mkToken (const Tokens.NewLine) (char '\n')
+  mkToken (const Tokens.NewLine) (Megaparsec.Char.char '\n')
 
 -- Equal
 keywordEqual :: Lexer Tokens.RealToken
 keywordEqual =
-  mkToken (const Tokens.Equal) (char '=')
+  mkToken (const Tokens.Equal) (Megaparsec.Char.char '=')
 
 -- In
 keywordIn :: Lexer Tokens.RealToken
 keywordIn =
-  mkToken (const Tokens.In) (string "Keyword(in)")
+  mkToken (const Tokens.In) (Megaparsec.Char.string "Keyword(in)")
 
 -- TypeAnnotationStart
 keywordTypeAnnotation :: Lexer Tokens.RealToken
 keywordTypeAnnotation =
-  mkToken (const Tokens.TypeAnnotationStart) (char ':') <?> "Type annotation (:)"
+  mkToken (const Tokens.TypeAnnotationStart) (Megaparsec.Char.char ':') <?> "Type annotation (:)"
 
 -- In
 keywordArrow :: Lexer Tokens.RealToken
 keywordArrow =
-  mkToken (const Tokens.Arrow) (string "->")
+  mkToken (const Tokens.Arrow) (Megaparsec.Char.string "->")
 
 -- ModuleAccess
 keywordModuleAccess :: Lexer Tokens.RealToken
 keywordModuleAccess =
-  mkToken (const Tokens.ModuleAccess) (char '^') <?> "Module access(^)"
+  mkToken (const Tokens.ModuleAccess) (Megaparsec.Char.char '^') <?> "Module access(^)"
 
 -- RecordAccess
 keywordRecordAccess :: Lexer Tokens.RealToken
 keywordRecordAccess =
-  mkToken (const Tokens.RecordAccess) (char '.') <?> "Record access(.)"
+  mkToken (const Tokens.RecordAccess) (Megaparsec.Char.char '.') <?> "Record access(.)"
 
 -- Hole
 hole :: Lexer Char
-hole = char '_' <?> "hole start('_')"
+hole = Megaparsec.Char.char '_' <?> "hole start('_')"
 
 keywordHole :: Lexer Tokens.RealToken
 keywordHole =
-  mkToken (const Tokens.Hole) (char '.') <?> "Anonymous hole(_)"
+  mkToken (const Tokens.Hole) (Megaparsec.Char.char '.') <?> "Anonymous hole(_)"
 
 -- EnumeratedHole
 enumeratedHole :: Lexer Int
@@ -147,7 +131,7 @@ keywordEnumeratedHole =
 -- EOF
 keywordEof :: Lexer Tokens.RealToken
 keywordEof =
-  mkToken (const Tokens.EOF) eof <?> "EOF"
+  mkToken (const Tokens.EOF) Megaparsec.eof <?> "EOF"
 
 lexChar :: Lexer Tokens.RealToken
 lexChar =
@@ -161,7 +145,7 @@ lexChar =
     <|> keywordArrow
     <|> keywordModuleAccess
     <|> keywordRecordAccess
-    <|> try keywordHole
+    <|> Megaparsec.try keywordHole
     <|> keywordEnumeratedHole
     <|> keywordEof
 

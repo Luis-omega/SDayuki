@@ -20,6 +20,9 @@ module FileModel (
   getColumnStart,
   buildPosition,
   buildRange,
+  positionFromMegaparsec,
+  unsafeMkRange,
+  unsafeMkPosition,
   Error (..),
 ) where
 
@@ -28,6 +31,8 @@ import Data.List.NonEmpty (NonEmpty)
 import Data.Natural (Natural)
 import qualified Data.Text as Text
 import qualified Validation
+
+import qualified Text.Megaparsec.Pos as Megaparsec
 
 data Position = Position
   { lineNumber :: Natural
@@ -107,3 +112,16 @@ buildRange p1 p2 =
     Validation.failureUnless
       (p1 <= p2)
       $ BadPositions p1 p2
+
+positionFromMegaparsec :: Megaparsec.SourcePos -> Position
+positionFromMegaparsec (Megaparsec.SourcePos _ line column) =
+  Position (convert line) (convert column)
+ where
+  convert :: Megaparsec.Pos -> Natural
+  convert x = (fromInteger . toInteger) (Megaparsec.unPos x -1)
+
+unsafeMkRange :: Position -> Position -> Range
+unsafeMkRange = Range
+
+unsafeMkPosition :: Integer -> Integer -> Position
+unsafeMkPosition x y = Position (fromInteger x) (fromInteger y)

@@ -31,7 +31,7 @@ common common-options
 library
   import:          common-options
   hs-source-dirs:  src
-  exposed-modules: Tokens, FileModel
+  exposed-modules: Tokens, FileModel, Lexer
   build-depends:
     , containers
     , mtl
@@ -39,6 +39,7 @@ library
     , natural-numbers
     , validation-selective
     , QuickCheck
+    , megaparsec
 
 executable SDayuki-exe
   import:         common-options
@@ -59,9 +60,12 @@ test-suite SDayuki-test
     , QuickCheck
     ,hspec-discover
     , validation-selective
+    , megaparsec
+    , hspec-megaparsec
 
   other-modules:
     FileModelSpec
+    ,LexerSpec
 
   ghc-options:    -threaded -rtsopts -with-rtsopts=-N
 

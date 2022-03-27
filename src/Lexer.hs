@@ -26,10 +26,10 @@ getPosition =
   FileModel.positionFromMegaparsec <$> Megaparsec.getSourcePos
 
 mkToken :: (a -> Tokens.RealTokenKind) -> Lexer a -> Lexer Tokens.RealToken
-mkToken constructor lexer =
+mkToken constructor toLex =
   do
     start <- getPosition
-    content <- lexer
+    content <- toLex
     end <- getPosition
     _ <- spaces
     return $
@@ -110,6 +110,21 @@ keywordModuleAccess =
 keywordRecordAccess :: Lexer Tokens.RealToken
 keywordRecordAccess =
   mkToken (const Tokens.RecordAccess) (Megaparsec.Char.char '.') <?> "Record access(.)"
+
+-- Import
+keywordImport :: Lexer Tokens.RealToken
+keywordImport =
+  mkToken (const Tokens.Import) (Megaparsec.Char.string "import") <?> "Keyword(import)"
+
+-- UnQualified
+keywordUnQualified :: Lexer Tokens.RealToken
+keywordUnQualified =
+  mkToken (const Tokens.UnQualified) (Megaparsec.Char.string "unqualified") <?> "Keyword(unqualified)"
+
+-- As
+keywordAs :: Lexer Tokens.RealToken
+keywordAs =
+  mkToken (const Tokens.UnQualified) (Megaparsec.Char.string "as") <?> "Keyword(as)"
 
 -- Hole
 hole :: Lexer Char

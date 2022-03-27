@@ -23,6 +23,9 @@ data RealTokenKind
   | Arrow
   | ModuleAccess
   | RecordAccess
+  | Import
+  | UnQualified
+  | As
   | Hole
   | EnumeratedHole Int
   | EOF

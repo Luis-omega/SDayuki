@@ -31,7 +31,7 @@ common common-options
 library
   import:          common-options
   hs-source-dirs:  src
-  exposed-modules: Tokens, FileModel, Lexer
+  exposed-modules: Tokens, FileModel, Lexer, Parser, ParserSyntaxTree
   build-depends:
     , containers
     , mtl
@@ -40,6 +40,7 @@ library
     , validation-selective
     , QuickCheck
     , megaparsec
+    , parser-combinators
 
 executable SDayuki-exe
   import:         common-options

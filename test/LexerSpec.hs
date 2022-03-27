@@ -10,7 +10,6 @@ import qualified Tokens
 
 import Test.Hspec
 import Test.Hspec.Megaparsec
-import Test.QuickCheck
 
 mkTokenWithRange :: Tokens.RealTokenKind -> Integer -> Integer -> Integer -> Integer -> Tokens.RealToken
 mkTokenWithRange kind line1 column1 line2 column2 =

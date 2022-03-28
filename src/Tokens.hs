@@ -10,7 +10,7 @@ module Tokens where
 
 import Data.Natural (Natural)
 import qualified Data.Text as Text
-import qualified FileModel
+import qualified TextModel.TextModel as TextModel
 
 data RealTokenKind
   = Let
@@ -47,7 +47,7 @@ instance Show RealTokenKind where
   show EOF = "EOF"
 
 data RealToken = RealToken
-  { tokenRange :: FileModel.Range
+  { tokenRange :: TextModel.Range
   , tokenKind :: RealTokenKind
   }
   deriving (Eq)
@@ -63,7 +63,7 @@ data GeneratedTokenKind
   | InIndentationEnd
 
 data GeneratedToken = GeneratedToken
-  { tokenRange :: FileModel.Range
+  { tokenRange :: TextModel.Range
   , tokenKind :: GeneratedTokenKind
   }
 

@@ -31,7 +31,7 @@ common common-options
 library
   import:          common-options
   hs-source-dirs:  src
-  exposed-modules: Tokens, FileModel, Lexer, Parser, ParserSyntaxTree
+  exposed-modules: Tokens, TextModel.TextModel, TextModel.Internal.TextModel, Lexer, Parser, ParserSyntaxTree
   build-depends:
     , containers
     , mtl
@@ -65,7 +65,7 @@ test-suite SDayuki-test
     , hspec-megaparsec
 
   other-modules:
-    FileModelSpec
+    TextModelSpec
     ,LexerSpec
 
   ghc-options:    -threaded -rtsopts -with-rtsopts=-N

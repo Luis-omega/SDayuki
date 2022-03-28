@@ -1,12 +1,12 @@
 import Test.Hspec
 
-import qualified FileModelSpec
 import qualified LexerSpec
+import qualified TextModelSpec
 
 main :: IO ()
 main = hspec spec
 
 spec :: Spec
 spec = do
-  describe "FileModel" FileModelSpec.spec
+  describe "TextModel" TextModelSpec.spec
   describe "Lexer" LexerSpec.spec

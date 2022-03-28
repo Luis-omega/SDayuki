@@ -5,8 +5,8 @@ module Lexer where
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Megaparsec
 import qualified Text.Megaparsec.Char as Megaparsec.Char
+import qualified TextModel.TextModel as TextModel
 
-import qualified FileModel
 import qualified Tokens
 
 import Control.Monad (liftM2)
@@ -16,14 +16,16 @@ import Data.Text (Text)
 import Data.Void (Void)
 import Text.Megaparsec (many, (<?>), (<|>))
 
+import TextModel.Internal.TextModel (positionFromMegaparsec, unsafeMkRange)
+
 type Lexer = Megaparsec.Parsec Void Text
 
 spaces :: Lexer ()
 spaces = Megaparsec.takeWhileP (Just "space") (== ' ') $> ()
 
-getPosition :: Lexer FileModel.Position
+getPosition :: Lexer TextModel.Position
 getPosition =
-  FileModel.positionFromMegaparsec <$> Megaparsec.getSourcePos
+  positionFromMegaparsec <$> Megaparsec.getSourcePos
 
 mkToken :: (a -> Tokens.RealTokenKind) -> Lexer a -> Lexer Tokens.RealToken
 mkToken constructor toLex =
@@ -34,7 +36,7 @@ mkToken constructor toLex =
     _ <- spaces
     return $
       Tokens.RealToken
-        (FileModel.unsafeMkRange start end)
+        (unsafeMkRange start end)
         (constructor content)
 
 -- Let
